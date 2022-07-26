@@ -1,0 +1,287 @@
+import './editor.css';
+import './front.css';
+import {ArticleIcon} from '../icons';
+
+(function (wpI18n, wpBlocks, wpEditor, wpComponents, wpElement) {
+    const {__} = wpI18n;
+    const {registerBlockType} = wpBlocks;
+    const {Fragment, Component} = wpElement;
+    const {RichText,MediaUpload} = wpEditor;
+    const {DateTimePicker,Button} = wpComponents;
+
+    class ItemComponent extends Component {
+        componentDidMount() {
+            const {products} = this.props.attributes;
+            if (0 === products.length) {
+                this.initList();
+            }
+        }
+
+        initList() {
+            const {products} = this.props.attributes;
+            const {setAttributes} = this.props;
+
+            setAttributes({
+                products: [
+                    ...products,
+                    {
+                        index: products.length,
+                        sourceName: '',
+                        headline: '',
+                        articleLink: '',
+                        articleDate: '',
+                        mediaID:'',
+                        mediaURL:''
+                    }
+                ]
+            });
+        }
+
+        render() {
+            const {attributes, setAttributes} = this.props;
+            const {products} = attributes;
+            const itemList = products
+                .sort((a, b) => a.index - b.index)
+                .map((product, index) => {
+                  return (
+                        <div className="article-item">
+                        <span
+                            className="remove"
+                            onClick={() => {
+                                const qewQusote = products
+                                    .filter(item => item.index !== product.index)
+                                    .map(t => {
+                                        if (t.index > product.index) {
+                                            t.index -= 1;
+                                        }
+
+                                        return t;
+                                    });
+
+                                setAttributes({
+                                    products: qewQusote
+                                });
+                            }}
+                        >
+                        <span className="dashicons dashicons-no-alt"></span>
+                        </span>
+                            <div className="article-top">
+                              <MediaUpload
+                                onSelect={media => {
+                                  const imageObject = Object.assign({}, product, {
+                                    mediaURL: media.url
+                                  });
+                                  setAttributes({
+                                    products: [
+                                      ...products.filter(
+                                        item => item.index !== product.index
+                                      ),
+                                      imageObject
+                                    ]
+                                  })
+                                }}
+                                allowedTypes="image"
+                                value={  product.mediaURL }
+                                render={ ( { open } ) => (
+                                  <Button className={ product.mediaURL? 'image-button' : 'button button-large' } onClick={ open }>
+                                    { ! product.mediaURL ? __( 'Upload Image', 'performancein-discount-block' ) : <img src={  product.mediaURL } alt={ __( 'Upload Discount Image', 'performancein-discount-block' ) } /> }
+                                  </Button>
+                                ) }
+                              />
+                                <RichText
+                                    tagName="strong"
+                                    placeholder={__('Source Name')}
+                                    value={product.sourceName}
+                                    className="sourceName"
+                                    keepPlaceholderOnFocus="true"
+                                    onChange={sourceName => {
+                                        const newObject = Object.assign({}, product, {
+                                            sourceName: sourceName
+                                        });
+                                        setAttributes({
+                                            products: [
+                                                ...products.filter(
+                                                    item => item.index !== product.index
+                                                ),
+                                                newObject
+                                            ]
+                                        });
+                                    }}
+                                />
+                                <div className="select-date">
+                                    {product.articleDate ? (
+                                        <span className="article_date">{product.articleDate}</span>
+                                    ) : (
+                                        <span className="article_date not-yet">
+                                            <span class="dashicons dashicons-calendar-alt"></span>{' '}
+                                            Select Date
+                                        </span>
+                                    )}
+                                    <div className="inspector-field inspector-field-datetime components-base-control hide-time">
+                                        <div className="inspector-ml-auto">
+                                            <DateTimePicker
+                                                currentDate={product.articleDate}
+                                                onChange={articleDate => {
+                                                    const months = [
+                                                        'January',
+                                                        'February',
+                                                        'March',
+                                                        'April',
+                                                        'May',
+                                                        'June',
+                                                        'July',
+                                                        'August',
+                                                        'September',
+                                                        'October',
+                                                        'November',
+                                                        'December'
+                                                    ];
+                                                    let currentDatetime = new Date(articleDate);
+                                                    let newDateTime =
+                                                        months[currentDatetime.getMonth()] +
+                                                        ' ' +
+                                                        currentDatetime.getDate() +
+                                                        ', ' +
+                                                        currentDatetime.getFullYear();
+                                                    const newObject = Object.assign({}, product, {
+                                                        articleDate: newDateTime
+                                                    });
+                                                    setAttributes({
+                                                        products: [
+                                                            ...products.filter(
+                                                                item => item.index !== product.index
+                                                            ),
+                                                            newObject
+                                                        ]
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="article-bottom">
+                                <RichText
+                                    tagName="h2"
+                                    placeholder={__('Headline')}
+                                    value={product.headline}
+                                    formattingControls={['bold', 'italic']}
+                                    className="headline"
+                                    keepPlaceholderOnFocus="true"
+                                    onChange={headline => {
+                                        const newObject = Object.assign({}, product, {
+                                            headline: headline
+                                        });
+                                        setAttributes({
+                                            products: [
+                                                ...products.filter(
+                                                    item => item.index !== product.index
+                                                ),
+                                                newObject
+                                            ]
+                                        });
+                                    }}
+                                />
+                                <RichText
+                                    tagName="p"
+                                    className="articleLink"
+                                    placeholder={__('Article Link')}
+                                    formattingControls={['']}
+                                    keepPlaceholderOnFocus="true"
+                                    value={product.articleLink}
+                                    onChange={articleLink => {
+                                        const newObject = Object.assign({}, product, {
+                                            articleLink: articleLink
+                                        });
+                                        setAttributes({
+                                            products: [
+                                                ...products.filter(
+                                                    item => item.index !== product.index
+                                                ),
+                                                newObject
+                                            ]
+                                        });
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    );
+                });
+
+            return (
+                <div className="article">
+                    <div className="article-main four-grid">
+                        {itemList}
+                        <div className="article-item additem">
+                            <button
+                                className="components-button add"
+                                onClick={content => {
+                                    setAttributes({
+                                        products: [
+                                            ...products,
+                                            {
+                                                index: products.length,
+                                                sourceName: '',
+                                                headline: '',
+                                                articleLink: '',
+                                                articleDate: ''
+                                            }
+                                        ]
+                                    });
+                                }}
+                            >
+                                <span className="dashicons dashicons-plus"></span> Add New Item
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+    }
+
+    registerBlockType('performancein/article', {
+        title: __('Article'),
+        description: __('Article'),
+        icon: ArticleIcon,
+        category: 'performancein',
+        keywords: [__('Article'), __('gutenberg'), __('performancein')],
+        attributes: {
+            products: {
+                type: 'array',
+                default: []
+            }
+        },
+        edit: ItemComponent,
+
+        save: props => {
+            const {attributes} = props;
+            const {products} = attributes;
+
+            return (
+                <div className="article">
+                    {products.map((product, index) => (
+                        <Fragment>
+                            {product.sourceName && (
+                                <Fragment>
+                                    {product.sourceName && (
+                                        <h3>
+                                            {product.sourceName}{' '}
+                                            <span className="article_date">
+                                                {product.articleDate}
+                                            </span>
+                                        </h3>
+                                    )}
+                                    {product.headline && (
+                                        <h2>
+                                            <a href={product.articleLink}>{product.headline}</a>
+                                        </h2>
+                                    )}
+                                </Fragment>
+                            )}
+                        </Fragment>
+                    ))}
+                </div>
+            );
+        }
+    });
+})(wp.i18n, wp.blocks, wp.editor, wp.components, wp.element);

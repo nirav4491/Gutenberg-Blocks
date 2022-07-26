@@ -1,0 +1,66 @@
+<?php
+/**
+ * The template for displaying all single posts
+ *
+ * @link https://developer.wordpress.org/themes/basics/template-hierarchy/#single-post
+ *
+ * @package performancein
+ */
+
+get_header();
+wp_enqueue_script( 'performancein-custom' );
+?>
+	<main id="main" class="site-main">
+		<div class="grid mainContent clearfix nosidebar" role="main">
+			<section class="content contentWithSidebar">
+				<?php
+				while ( have_posts() ) :
+					the_post();
+					get_template_part( 'template-parts/partner-network/content', 'partner-search' );
+					get_template_part( 'template-parts/partner-network/content', 'partner-signup' );
+					get_template_part( 'template-parts/partner-network/content', 'partner-banner' );
+					get_template_part( 'template-parts/partner-network/content', 'partner-submenu' );
+					?>
+					<section class="profile-hub-profile-info site-width-content mod-flex">
+                        <div class="profile-hub-profile-info-main">
+							<h1><?php echo esc_html( get_the_title() ); ?></h1>
+							<?php
+							$pro_cur                      = "";
+							$testi_cur                    = "";
+							$pro_cur                      = 'current';
+							$pi_partner_sub_menu          = get_field( 'pi_partner_page_sub_menu', get_the_ID() );
+							$pi_client_testimonials_title = get_field( 'pi_client_testimonials_pi_client_testimonials_title', get_the_ID() );
+							$pi_client_testimonial1       = get_field( 'pi_client_testimonials_pi_client_testimonial1', get_the_ID() );
+							$pi_client_testimonial2       = get_field( 'pi_client_testimonials_pi_client_testimonial2', get_the_ID() );
+							$pi_client_testimonial3       = get_field( 'pi_client_testimonials_pi_client_testimonial3', get_the_ID() );
+							if ( ! empty( $pi_client_testimonials_title ) || ! empty( $pi_client_testimonial1 ) || ! empty( $pi_client_testimonial2 ) || ! empty( $pi_client_testimonial3 ) ) {
+								$testi_cur = 'current';
+							} ?>
+
+							<div id="js-tab-profile" class="tab-content <?php echo esc_attr( $pro_cur ); ?>">
+								<?php get_template_part( 'template-parts/partner-network/content', 'partner-tags' ); ?>
+								<?php get_template_part( 'template-parts/partner-network/content', 'partner-description' ); ?>
+							</div>
+							<?php
+							if ( ! empty( $pi_client_testimonials_title ) || ! empty( $pi_client_testimonial1 ) || ! empty( $pi_client_testimonial2 ) || ! empty( $pi_client_testimonial3 ) ) { ?>
+								<div id="js-tab-testimonials" class="tab-content <?php echo esc_attr( $testi_cur ); ?>">
+									<?php get_template_part( 'template-parts/partner-network/content', 'partner-testimonials' ); ?>
+								</div>
+								<?php
+							} ?>
+						</div>
+						<?php
+						get_template_part( 'template-parts/partner-network/content', 'partner-sidebar' );
+						$pi_partner_related_articles = get_field( 'pi_partner_related_articles', get_the_ID() );
+						if(is_array($pi_partner_related_articles)) {
+	                        get_template_part( 'template-parts/partner-network/content', 'partner-related-articles' );
+                        } ?>
+					</section>
+				<?php
+				endwhile; // End of the loop.
+				?>
+			</section>
+		</div>
+	</main><!-- #main -->
+<?php
+get_footer();

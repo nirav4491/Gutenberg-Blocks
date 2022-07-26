@@ -1,0 +1,127 @@
+.storyful-post-grid .row .item {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    height: 340px;
+    margin-bottom: 6px
+}
+
+.storyful-post-grid .row .item:hover .post-inner {
+    transform: scale(1.2);
+    -webkit-transform: scale(1.2);
+    -moz-transform: scale(1.2)
+}
+
+.storyful-post-grid .row .item .post-inner {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center;
+    transition: all ease 0.3s;
+    -webkit-transition: all ease 0.3s;
+    -moz-transition: all ease 0.3s
+}
+
+.storyful-post-grid .row .item a {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-flow: column;
+    padding: 0 30px;
+    text-decoration: none
+}
+
+.storyful-post-grid .row .item a span {
+    color: #fff;
+    font-size: 16px
+}
+
+.storyful-post-grid .row .item a h2 {
+    font-size: 20px;
+    color: #fff;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    margin: 0
+}
+
+.storyful-post-grid .row .item .post-inner::before {
+    content: '';
+    background: #ff3c00;
+    background: -webkit-gradient(linear, left top, right top, from(#ff3c00), to(#ff0e46));
+    background: linear-gradient(to right, #ff3c00 0, #ff0e46 100%);
+    opacity: 0.6;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0
+}
+
+.range-setting .fix-height-select {
+    margin-top: 10px
+}
+
+.edit-post-settings-sidebar__panel-block .fix-height-select input[type="checkbox"] {
+    margin-bottom: 0 !important
+}
+
+.storyful-post-grid-main {
+    padding: 150px 0 130px 0;
+    text-align: center
+}
+
+.storyful-post-grid-main h2.post-grid-title {
+    -webkit-box-shadow: 8px 0 0 #0f112a, -8px 0 0 #0f112a;
+    box-shadow: 8px 0 0 #0f112a, -8px 0 0 #0f112a;
+    background-color: #0f112a;
+    font-size: 48px;
+    color: #ffffff;
+    margin-top: 0;
+    margin-bottom: 60px;
+    margin-left: 0;
+    margin-right: 0;
+    padding-top: 6px;
+    padding-bottom: 12px;
+    padding-left: 20px;
+    padding-right: 20px;
+    text-align: center;
+    font-family: Big_Caslon;
+    display: inline-block
+}
+
+.storyful-post-grid-main .row {
+    margin: 0
+}
+
+@media (min-width: 768px) {
+    .storyful-post-grid .row .item a h2 {
+        font-size: 26px
+    }
+
+    .storyful-post-grid .row .item {
+        border-right: 6px solid #fff
+    }
+
+    .storyful-post-grid .row .item:last-child {
+        border-right: 0
+    }
+}
+
+@media (max-width: 767px) {
+    .storyful-post-grid-main {
+        padding: 80px 0 80px 0
+    }
+
+    .storyful-post-grid-main h2.post-grid-title {
+        font-size: 35px
+    }
+}

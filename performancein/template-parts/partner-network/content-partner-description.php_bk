@@ -1,0 +1,13 @@
+<?php
+$pi_partner_description       = get_field( 'pi_partner_description' );
+
+$pi_partner_description_title = $pi_partner_description['pi_partner_description_title'];
+$pi_partner_description       = $pi_partner_description['pi_partner_description'];
+
+if ( $pi_partner_description_title ): ?>
+	<h2><?php echo esc_html( $pi_partner_description_title ); ?></h2>
+<?php
+endif;
+if ( $pi_partner_description ):
+	echo wp_kses_post( $pi_partner_description );
+endif; ?>

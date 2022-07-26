@@ -1,0 +1,128 @@
+.contact-form {
+    padding: 65px 0 70px 0;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw
+}
+
+.contact-form h2.bg-primary {
+    display: inline-block;
+    font-family: Big_Caslon;
+    font-size: 50px;
+    color: #fff;
+    background-color: #0f112a !important;
+    padding: 10px 0;
+    margin-bottom: 15px;
+    -webkit-box-shadow: 18px 0 0 #0f112a, -18px 0 0 #0f112a;
+    box-shadow: 18px 0 0 #0f112a, -18px 0 0 #0f112a;
+    letter-spacing: 2px
+}
+
+.contact-form .section-headline {
+    text-align: center;
+    margin-bottom: 40px
+}
+
+.contact-form .section-headline p {
+    font-size: 24px;
+    color: #0f112a
+}
+
+.contact-form textarea, .contact-form select, .contact-form input:not([type="button"]):not([type="submit"]) {
+    width: 100%;
+    border-color: #0f142c;
+    border-radius: 0;
+    font-size: 16px;
+    color: #0f112a;
+    padding: 14px 15px;
+    height: 54px;
+    outline: 0
+}
+
+.contact-form input::-webkit-input-placeholder, .contact-form input::-moz-input-placeholder, .contact-form input::placeholder {
+    color: #0f112a
+}
+
+.contact-form .form-check {
+    margin: 25px 0 25px
+}
+
+.contact-form .form-check-input {
+    display: none
+}
+
+.contact-form .form-check label {
+    font-weight: normal;
+    display: inline-block;
+    padding-left: 46px;
+    position: relative;
+    vertical-align: middle;
+    font-size: 16px;
+    cursor: pointer
+}
+
+.contact-form .form-check label::before {
+    content: '';
+    height: 26px;
+    width: 26px;
+    border: 1px solid #0f112a;
+    transition: transform ease 0.2s;
+    display: block;
+    position: absolute;
+    left: 0;
+    top: -2px
+}
+
+.contact-form .form-check input:checked + label::before {
+    height: 10px;
+    border-top-color: transparent;
+    transform: rotate(-45deg) translateY(5px);
+    border-right-color: transparent;
+    width: 25px
+}
+
+.contact-form.bg-secondary {
+    background-color: #141c36 !important
+}
+
+.contact-form.bg-secondary h2.bg-primary {
+    background-color: transparent !important;
+    padding: 0;
+    box-shadow: none;
+    -webkit-box-shadow: none
+}
+
+.contact-form.bg-secondary .section-headline p {
+    color: #fff
+}
+
+.contact-form.bg-secondary textarea, .contact-form.bg-secondary select, .contact-form.bg-secondary input:not([type="button"]):not([type="submit"]) {
+    border-width: 0 !important
+}
+
+.contact-form.bg-secondary .form-check {
+    color: #fff
+}
+
+.contact-form.bg-secondary .form-check label::before {
+    border-color: #fff
+}
+
+.contact-form *::-webkit-input-placeholder {
+    color: #0f112a
+}
+
+.contact-form *::-moz-placeholder {
+    color: #0f112a
+}
+
+.contact-form *:-ms-input-placeholder {
+    color: #0f112a
+}
+
+.contact-form *:-moz-placeholder {
+    color: #0f112a
+}

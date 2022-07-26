@@ -1,0 +1,30 @@
+.wp-block-storyful-article {
+    margin-bottom: 32px
+}
+
+.wp-block-storyful-article h3 {
+    font-size: 13px;
+    font-weight: 500;
+    color: #ff3c00;
+    margin-bottom: 5px
+}
+
+.wp-block-storyful-article .article_date {
+    font-size: 11px;
+    font-weight: normal;
+    color: #cbcad1;
+    margin-left: 12px
+}
+
+.wp-block-storyful-article h2 {
+    font-size: 26px;
+    margin-bottom: 40px
+}
+
+.wp-block-storyful-article h2 a {
+    color: inherit
+}
+
+.wp-block-storyful-article h2 a:hover {
+    color: #ff3c00
+}

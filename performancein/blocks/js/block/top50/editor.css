@@ -1,0 +1,203 @@
+.article .box-main {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px
+}
+
+.article .box-main .box-item {
+    flex-basis: 50%;
+    padding: 0 15px;
+    margin-bottom: 30px
+}
+
+.article .box-main .box-item .box-inner {
+    border: 3px solid #d9d9d9;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    display: flex;
+    height: 100%;
+    align-items: flex-start;
+    flex-flow: column;
+    flex-direction: column
+}
+
+.box-main .box-item .box-inner span.remove {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    z-index: 9;
+    background: red !important;
+    color: #fff;
+    border-radius: 50%;
+    vertical-align: bottom;
+    display: flex;
+    padding: 3px;
+    cursor: pointer
+}
+
+.box-main .box-item.additem {
+    text-align: center;
+    min-height: 350px
+}
+
+.box-main .box-item.additem button {
+    width: 100%;
+    height: 100%;
+    background: #1b2a49;
+    padding: 0;
+    display: block;
+    font-size: 16px;
+    transition: 0.5s all;
+    outline: none;
+    margin: 0 auto;
+    color: #fff
+}
+
+.box-main .box-item.additem button span {
+    display: inline-block;
+    vertical-align: middle
+}
+
+.box-main .box-item .box-inner .editor-rich-text {
+    width: 100%;
+    text-align: center
+}
+
+.article-main .article-item .inspector-field-datetime {
+    position: relative;
+    width: 100%;
+    margin-bottom: 5px;
+    border-top: 2px solid #d9d9d9;
+    margin-top: 10px;
+    padding-top: 10px
+}
+
+.article-main .article-item .inspector-field-datetime .components-datetime .components-datetime__time {
+    display: none
+}
+
+.article-main .article-item .inspector-field-datetime .components-datetime .components-datetime__date {
+    border-top: 0
+}
+
+.article-main .article-item .inspector-field-datetime > label {
+    width: 100%;
+    display: block;
+    line-height: 18px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    font-size: 120%;
+    opacity: 0.8;
+    font-style: italic
+}
+
+.article-main .article-item .editor-rich-text .block-editor-rich-text__editable[data-is-placeholder-visible="true"] {
+    left: 0
+}
+
+.article-main .article-item .editor-rich-text .block-editor-rich-text__editable + .block-editor-rich-text__editable {
+    font-style: italic
+}
+
+.article-main .article-item .inspector-field-datetime .components-datetime .components-datetime__date .DayPicker {
+    margin: 0 auto
+}
+
+.article-main .article-top {
+    display: flex;
+    align-items: center
+}
+
+.article-main .article-top strong.sourceName {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgb(255, 60, 0);
+    margin-bottom: 5px
+}
+
+.article-main .article-top .article_date {
+    font-size: 11px;
+    font-weight: normal;
+    color: rgb(203, 202, 209);
+    margin-left: 12px;
+    display: flex;
+    align-items: center
+}
+
+.article-main .article-top .article_date span {
+    margin-right: 5px
+}
+
+.article-main .article-item {
+    position: relative;
+    margin-bottom: 40px
+}
+
+.article-main .article-item span.remove {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 9;
+    background: red !important;
+    color: #fff;
+    border-radius: 50%;
+    vertical-align: bottom;
+    display: flex;
+    padding: 3px;
+    cursor: pointer
+}
+
+.article-main .article-item.additem button {
+    width: 100%;
+    height: 100%;
+    background: #1b2a49;
+    font-size: 16px;
+    transition: 0.5s all;
+    outline: none;
+    margin: 0 auto;
+    padding: 20px 20px;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center
+}
+
+.article-main .article-item.additem button span {
+    margin-right: 10px
+}
+
+.article-main .article-top .select-date {
+    position: relative
+}
+
+.article-main .article-top .select-date .hide-time {
+    display: none;
+    position: absolute;
+    top: 0;
+    width: 260px;
+    background: #fff;
+    z-index: 999;
+    box-shadow: 3px 8px 25px 0 rgba(0, 0, 0, 0.25);
+    margin: 0;
+    left: 100%;
+    padding: 10px 0;
+    border: none;
+    box-sizing: border-box
+}
+
+.article-main .article-top .select-date:hover .hide-time {
+    display: block
+}
+
+.select-date .DayPicker_transitionContainer {
+    height: 230px !important
+}
+
+.select-date .DayPicker__hidden {
+    visibility: visible !important
+}
+
+.wp-block-storyful-article h2 a:hover {
+    color: #ff3c00
+}

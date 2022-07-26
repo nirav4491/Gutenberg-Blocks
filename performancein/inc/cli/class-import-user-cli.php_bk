@@ -1,0 +1,944 @@
+<?php
+
+
+# Register a custom 'foo' command to output a supplied positional param.
+#
+# $ wp foo bar --append=qux
+# Success: bar qux
+
+/**
+ * My awesome closure command
+ *
+ * <message>
+ * : An awesome message to display
+ *
+ * --append=<message>
+ * : An awesome message to append to the original message.
+ *
+ * @when before_wp_load
+ */
+
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+
+	class ExamplePluginWPCLI {
+
+		public function __construct() {
+
+			// example constructor called when plugin loads
+
+		}
+
+		public function pf_user_recruiter_role_insert() {
+
+			global $wpdb;
+
+			$start = microtime( true );
+
+			$get_all_user  = 'SELECT auth_user.*, auth_user_groups.user_id, auth_user_groups.group_id, auth_group.name as role FROM `auth_user`
+INNER JOIN auth_user_groups ON auth_user.id=auth_user_groups.user_id
+INNER JOIN auth_group ON auth_user_groups.group_id=auth_group.id WHERE auth_group.name = "Recruiter"';
+			$user_lists    = $wpdb->get_results( $get_all_user );
+			$success_count = 0;
+			$failed_count  = 0;
+			foreach ( $user_lists as $per_user ) {
+				$user_role = $per_user->role;
+
+				if ( $per_user->role === 'Authors' ) {
+					$user_role = 'author';
+				} elseif ( $per_user->role === 'Recruiter' ) {
+					$user_role = 'customer';
+
+				} elseif ( $per_user->role === 'Sales' || $per_user->role === 'Content Team' ) {
+					$user_role = 'editor';
+				}
+				$userdata = array(
+					'user_pass'     => '',
+					//(string) The plain-text user password.
+					'user_login'    => $per_user->username,
+					//(string) The user's login username.
+					'user_nicename' => $per_user->username,
+					//(string) The URL-friendly user name.
+					'user_email'    => $per_user->email,
+					//(string) The user email address.
+					'display_name'  => $per_user->username,
+					//(string) The user's display name. Default is the user's username.
+					'nickname'      => $per_user->username,
+					//(string) The user's nickname. Default is the user's username.
+					'first_name'    => $per_user->first_name,
+					//(string) The user's first name. For new users, will be used to build the first part of the user's display name if $display_name is not specified.
+					'last_name'     => $per_user->last_name,
+					//(string) The user's last name. For new users, will be used to build the second part of the user's display name if $display_name is not specified.
+					'role'          => $user_role,
+					//(string) User's role.
+				);
+
+				$get_author_info                         = 'SELECT * FROM content_authorprofile WHERE user_id =' . $per_user->id;
+				$get_author_info_rsult                   = $wpdb->get_results( $get_author_info, ARRAY_A );
+				$recuruiterLogoQuery                     = 'SELECT * FROM monetisation_recruiterinformation WHERE account_id =' . $per_user->id;
+				$recuruiterLogoQueryResult               = $wpdb->get_results( $recuruiterLogoQuery, ARRAY_A );
+				$recuruiterTwitterQuery                  = 'SELECT * FROM monetisation_twitteraccount WHERE account_id =' . $per_user->id;
+				$recuruiterTwitterQueryResult            = $wpdb->get_results( $recuruiterTwitterQuery, ARRAY_A );
+				$recuruiterAccountPreferencesQuery       = 'SELECT * FROM monetisation_accountpreferences WHERE account_id =' . $per_user->id;
+				$recuruiterAccountPreferencesQueryResult = $wpdb->get_results( $recuruiterAccountPreferencesQuery, ARRAY_A );
+				$regionsIds                              = array();
+				$verticalsIds                            = array();
+				$topicsIds                              = array();
+				if ( ! empty( $recuruiterAccountPreferencesQueryResult ) && isset( $recuruiterAccountPreferencesQueryResult ) ) {
+					foreach ( $recuruiterAccountPreferencesQueryResult as $regionsArray ) {
+						$regionsID          = $regionsArray['id'];
+						$regionsQuery       = 'SELECT * FROM monetisation_accountpreferences_regions WHERE accountpreferences_id =' . $regionsID;
+						$regionsQueryResult = $wpdb->get_results( $regionsQuery, ARRAY_A );
+						foreach ( $regionsQueryResult as $regionsResult ) {
+							if ( '1' === $regionsResult['region_id'] ) {
+								$regionalForData = 'usa';
+							} elseif ( '2' === $regionsResult['region_id'] ) {
+								$regionalForData = 'europe';
+							} else {
+								$regionalForData = 'global';
+							}
+							$regionsIds[] = $regionalForData;
+
+						}
+					}
+					foreach ( $recuruiterAccountPreferencesQueryResult as $verticalsArray ) {
+						$verticalsID          = $verticalsArray['id'];
+						$verticalsQuery       = 'SELECT * FROM monetisation_accountpreferences_verticals WHERE accountpreferences_id =' . $verticalsID;
+						$verticalsQueryResult = $wpdb->get_results( $verticalsQuery, ARRAY_A );
+						foreach ( $verticalsQueryResult as $verticalsResult ) {
+							if ( '1' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'finance';
+							} elseif ( '2' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'travel';
+							} elseif ( '3' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'telecoms';
+							} elseif ( '4' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'retail';
+							} elseif ( '5' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'automotive';
+							} elseif ( '6' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'electrical';
+							} elseif ( '7' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'fashion';
+							}
+							$verticalsIds[] = $verticalalForData;
+
+						}
+					}
+					foreach ( $recuruiterAccountPreferencesQueryResult as $topicsArray ) {
+						$topicsID          = $topicsArray['id'];
+						$topicsQuery       = 'SELECT * FROM monetisation_accountpreferences_topics WHERE accountpreferences_id =' . $topicsID;
+						$topicsQueryResult = $wpdb->get_results( $topicsQuery, ARRAY_A );
+						foreach ( $topicsQueryResult as $topicsResult ) {
+							if ( '1' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'affiliate';
+							} elseif ( '2' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'social';
+							} elseif ( '3' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'search';
+							} elseif ( '4' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'email';
+							} elseif ( '5' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'display';
+							} elseif ( '6' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'lead generation';
+							} elseif ( '7' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'mobile';
+							}
+							$topicsIds[] = $topicalForData;
+
+						}
+					}
+				}
+
+
+				$new_user_id = wp_insert_user( $userdata );
+				if ( ! empty( $regionsIds ) && isset( $regionsIds ) ) {
+					update_user_meta( $new_user_id, 'pi_regions_of_interest', $regionsIds );
+				}
+				if ( ! empty( $verticalsIds ) && isset( $verticalsIds ) ) {
+					update_user_meta( $new_user_id, 'pi_verticals', $verticalsIds );
+				}
+				if ( ! empty( $topicsIds ) && isset( $topicsIds ) ) {
+					update_user_meta( $new_user_id, 'pi_topics', $topicsIds );
+				}
+				if ( ! empty( $recuruiterAccountPreferencesQueryResult[0] ) ) {
+					update_user_meta( $new_user_id, 'pi_company_name', $recuruiterAccountPreferencesQueryResult[0]['company_name'] );
+					update_user_meta( $new_user_id, 'pi_demographic', $recuruiterAccountPreferencesQueryResult[0]['demographic'] );
+					update_user_meta( $new_user_id, 'pi_createsend_update_required', $recuruiterAccountPreferencesQueryResult[0]['createsend_update_required'] );
+					update_user_meta( $new_user_id, 'pi_job_title', $recuruiterAccountPreferencesQueryResult[0]['job_title'] );
+					update_user_meta( $new_user_id, 'pi_account_preferences_id', $recuruiterAccountPreferencesQueryResult[0]['id'] );
+				}
+				if ( ! empty( $recuruiterTwitterQueryResult[0] ) ) {
+					update_user_meta( $new_user_id, 'pi_twitter_token', $recuruiterTwitterQueryResult[0]['token'] );
+					update_user_meta( $new_user_id, 'pi_twitter_secret', $recuruiterTwitterQueryResult[0]['secret'] );
+					update_user_meta( $new_user_id, 'pi_twitter_username', $recuruiterTwitterQueryResult[0]['username'] );
+					update_user_meta( $new_user_id, 'pi_twitter_user_id', $recuruiterTwitterQueryResult[0]['user_id'] );
+					update_user_meta( $new_user_id, 'pi_twitter_id', $recuruiterTwitterQueryResult[0]['id'] );
+				}
+				if ( ! empty( $get_author_info_rsult[0]['twitter'] ) ) {
+					update_user_meta( $new_user_id, 'pi_twitter_url', $get_author_info_rsult[0]['twitter'] );
+				}
+				if ( ! empty( $get_author_info_rsult[0]['lin'] ) ) {
+					update_user_meta( $new_user_id, 'pi_linkedin_url', $get_author_info_rsult[0]['lin'] );
+				}
+				if ( ! empty( $recuruiterLogoQueryResult[0]['recruiter_name'] ) ) {
+					update_user_meta( $new_user_id, 'pi_recruiter_company_name', $recuruiterLogoQueryResult[0]['recruiter_name'] );
+				}
+
+				update_user_meta( $new_user_id, 'django_user_id', $per_user->id );
+				update_user_meta( $new_user_id, 'is_confirm', 1 );
+
+				if ( isset( $recuruiterLogoQueryResult[0]['image'] ) && ! empty( $recuruiterLogoQueryResult[0]['image'] ) ) {
+
+					$this->generate_attachment( 'https://performancein.com/assets/' . $recuruiterLogoQueryResult[0]['image'], $new_user_id, 'pi_recruiter_logo' );
+				}
+				update_user_meta( $new_user_id, 'pi_staff_status', $per_user->is_staff );
+				update_user_meta( $new_user_id, 'pi_super_user_status', $per_user->is_superuser );
+				update_user_meta( $new_user_id, 'pi_is_active', $per_user->is_active );
+				update_user_meta( $new_user_id, 'pi_group_id', $per_user->group_id );
+				if ( isset( $get_author_info_rsult[0]['image'] ) && ! empty( $get_author_info_rsult[0]['image'] ) ) {
+
+					$this->generate_attachment( 'https://performancein.com/assets/' . $get_author_info_rsult[0]['image'], $new_user_id, 'author_avtar_image' );
+				}
+
+				if ( ! is_wp_error( $new_user_id ) ) {
+
+					$update_sql               = $wpdb->prepare( "UPDATE wp_users SET user_pass = %s WHERE ID =%d", $per_user->password, $new_user_id );
+					$results_password_updated = $wpdb->query( $update_sql );
+
+					WP_CLI::success( 'Inserted = ' . $new_user_id );
+					$success_count ++;
+				} else {
+
+					echo $new_user_id->get_error_message();
+
+					WP_CLI::success( 'Not Inserted = ' . $per_user->id );
+					$failed_count ++;
+				}
+
+			}
+
+			$time_elapsed_secs = microtime( true ) - $start;
+
+			WP_CLI::success( 'executed time = ' . $time_elapsed_secs );
+
+		}
+
+		public function pf_user_sales_role_insert() {
+
+			global $wpdb;
+
+			$start = microtime( true );
+
+			$get_all_user  = 'SELECT auth_user.*, auth_user_groups.user_id, auth_user_groups.group_id, auth_group.name as role FROM `auth_user`
+INNER JOIN auth_user_groups ON auth_user.id=auth_user_groups.user_id
+INNER JOIN auth_group ON auth_user_groups.group_id=auth_group.id WHERE auth_group.name = "Sales"';
+			$user_lists    = $wpdb->get_results( $get_all_user );
+			$success_count = 0;
+			$failed_count  = 0;
+			foreach ( $user_lists as $per_user ) {
+				$user_role = $per_user->role;
+
+				if ( $per_user->role === 'Authors' ) {
+					$user_role = 'author';
+				} elseif ( $per_user->role === 'Recruiter' ) {
+					$user_role = 'customer';
+
+				} elseif ( $per_user->role === 'Sales' || $per_user->role === 'Content Team' ) {
+					$user_role = 'editor';
+				}
+				$userdata = array(
+					'user_pass'     => '',
+					//(string) The plain-text user password.
+					'user_login'    => $per_user->username,
+					//(string) The user's login username.
+					'user_nicename' => $per_user->username,
+					//(string) The URL-friendly user name.
+					'user_email'    => $per_user->email,
+					//(string) The user email address.
+					'display_name'  => $per_user->username,
+					//(string) The user's display name. Default is the user's username.
+					'nickname'      => $per_user->username,
+					//(string) The user's nickname. Default is the user's username.
+					'first_name'    => $per_user->first_name,
+					//(string) The user's first name. For new users, will be used to build the first part of the user's display name if $display_name is not specified.
+					'last_name'     => $per_user->last_name,
+					//(string) The user's last name. For new users, will be used to build the second part of the user's display name if $display_name is not specified.
+					'role'          => $user_role,
+					//(string) User's role.
+				);
+
+				$get_author_info                         = 'SELECT * FROM content_authorprofile WHERE user_id =' . $per_user->id;
+				$get_author_info_rsult                   = $wpdb->get_results( $get_author_info, ARRAY_A );
+				$recuruiterLogoQuery                     = 'SELECT * FROM monetisation_recruiterinformation WHERE account_id =' . $per_user->id;
+				$recuruiterLogoQueryResult               = $wpdb->get_results( $recuruiterLogoQuery, ARRAY_A );
+				$recuruiterTwitterQuery                  = 'SELECT * FROM monetisation_twitteraccount WHERE account_id =' . $per_user->id;
+				$recuruiterTwitterQueryResult            = $wpdb->get_results( $recuruiterTwitterQuery, ARRAY_A );
+				$recuruiterAccountPreferencesQuery       = 'SELECT * FROM monetisation_accountpreferences WHERE account_id =' . $per_user->id;
+				$recuruiterAccountPreferencesQueryResult = $wpdb->get_results( $recuruiterAccountPreferencesQuery, ARRAY_A );
+				$regionsIds                              = array();
+				$verticalsIds                            = array();
+				$topicsIds                              = array();
+				if ( ! empty( $recuruiterAccountPreferencesQueryResult ) && isset( $recuruiterAccountPreferencesQueryResult ) ) {
+					foreach ( $recuruiterAccountPreferencesQueryResult as $regionsArray ) {
+						$regionsID          = $regionsArray['id'];
+						$regionsQuery       = 'SELECT * FROM monetisation_accountpreferences_regions WHERE accountpreferences_id =' . $regionsID;
+						$regionsQueryResult = $wpdb->get_results( $regionsQuery, ARRAY_A );
+						foreach ( $regionsQueryResult as $regionsResult ) {
+							if ( '1' === $regionsResult['region_id'] ) {
+								$regionalForData = 'usa';
+							} elseif ( '2' === $regionsResult['region_id'] ) {
+								$regionalForData = 'europe';
+							} else {
+								$regionalForData = 'global';
+							}
+							$regionsIds[] = $regionalForData;
+
+						}
+					}
+					foreach ( $recuruiterAccountPreferencesQueryResult as $verticalsArray ) {
+						$verticalsID          = $verticalsArray['id'];
+						$verticalsQuery       = 'SELECT * FROM monetisation_accountpreferences_verticals WHERE accountpreferences_id =' . $verticalsID;
+						$verticalsQueryResult = $wpdb->get_results( $verticalsQuery, ARRAY_A );
+						foreach ( $verticalsQueryResult as $verticalsResult ) {
+							if ( '1' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'finance';
+							} elseif ( '2' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'travel';
+							} elseif ( '3' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'telecoms';
+							} elseif ( '4' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'retail';
+							} elseif ( '5' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'automotive';
+							} elseif ( '6' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'electrical';
+							} elseif ( '7' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'fashion';
+							}
+							$verticalsIds[] = $verticalalForData;
+
+						}
+					}
+					foreach ( $recuruiterAccountPreferencesQueryResult as $topicsArray ) {
+						$topicsID          = $topicsArray['id'];
+						$topicsQuery       = 'SELECT * FROM monetisation_accountpreferences_topics WHERE accountpreferences_id =' . $topicsID;
+						$topicsQueryResult = $wpdb->get_results( $topicsQuery, ARRAY_A );
+						foreach ( $topicsQueryResult as $topicsResult ) {
+							if ( '1' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'affiliate';
+							} elseif ( '2' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'social';
+							} elseif ( '3' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'search';
+							} elseif ( '4' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'email';
+							} elseif ( '5' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'display';
+							} elseif ( '6' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'lead generation';
+							} elseif ( '7' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'mobile';
+							}
+							$topicsIds[] = $topicalForData;
+
+						}
+					}
+				}
+
+
+				$new_user_id = wp_insert_user( $userdata );
+				if ( ! empty( $regionsIds ) && isset( $regionsIds ) ) {
+					update_user_meta( $new_user_id, 'pi_regions_of_interest', $regionsIds );
+				}
+				if ( ! empty( $verticalsIds ) && isset( $verticalsIds ) ) {
+					update_user_meta( $new_user_id, 'pi_verticals', $verticalsIds );
+				}
+				if ( ! empty( $topicsIds ) && isset( $topicsIds ) ) {
+					update_user_meta( $new_user_id, 'pi_topics', $topicsIds );
+				}
+				if ( ! empty( $recuruiterAccountPreferencesQueryResult[0] ) ) {
+					update_user_meta( $new_user_id, 'pi_company_name', $recuruiterAccountPreferencesQueryResult[0]['company_name'] );
+					update_user_meta( $new_user_id, 'pi_demographic', $recuruiterAccountPreferencesQueryResult[0]['demographic'] );
+					update_user_meta( $new_user_id, 'pi_createsend_update_required', $recuruiterAccountPreferencesQueryResult[0]['createsend_update_required'] );
+					update_user_meta( $new_user_id, 'pi_job_title', $recuruiterAccountPreferencesQueryResult[0]['job_title'] );
+					update_user_meta( $new_user_id, 'pi_account_preferences_id', $recuruiterAccountPreferencesQueryResult[0]['id'] );
+				}
+				if ( ! empty( $recuruiterTwitterQueryResult[0] ) ) {
+					update_user_meta( $new_user_id, 'pi_twitter_token', $recuruiterTwitterQueryResult[0]['token'] );
+					update_user_meta( $new_user_id, 'pi_twitter_secret', $recuruiterTwitterQueryResult[0]['secret'] );
+					update_user_meta( $new_user_id, 'pi_twitter_username', $recuruiterTwitterQueryResult[0]['username'] );
+					update_user_meta( $new_user_id, 'pi_twitter_user_id', $recuruiterTwitterQueryResult[0]['user_id'] );
+					update_user_meta( $new_user_id, 'pi_twitter_id', $recuruiterTwitterQueryResult[0]['id'] );
+				}
+				if ( ! empty( $get_author_info_rsult[0]['twitter'] ) ) {
+					update_user_meta( $new_user_id, 'pi_twitter_url', $get_author_info_rsult[0]['twitter'] );
+				}
+				if ( ! empty( $get_author_info_rsult[0]['lin'] ) ) {
+					update_user_meta( $new_user_id, 'pi_linkedin_url', $get_author_info_rsult[0]['lin'] );
+				}
+				if ( ! empty( $recuruiterLogoQueryResult[0]['recruiter_name'] ) ) {
+					update_user_meta( $new_user_id, 'pi_recruiter_company_name', $recuruiterLogoQueryResult[0]['recruiter_name'] );
+				}
+
+				update_user_meta( $new_user_id, 'django_user_id', $per_user->id );
+				update_user_meta( $new_user_id, 'is_confirm', 1 );
+
+				if ( isset( $recuruiterLogoQueryResult[0]['image'] ) && ! empty( $recuruiterLogoQueryResult[0]['image'] ) ) {
+
+					$this->generate_attachment( 'https://performancein.com/assets/' . $recuruiterLogoQueryResult[0]['image'], $new_user_id, 'pi_recruiter_logo' );
+				}
+				update_user_meta( $new_user_id, 'pi_staff_status', $per_user->is_staff );
+				update_user_meta( $new_user_id, 'pi_super_user_status', $per_user->is_superuser );
+				update_user_meta( $new_user_id, 'pi_is_active', $per_user->is_active );
+				update_user_meta( $new_user_id, 'pi_group_id', $per_user->group_id );
+				if ( isset( $get_author_info_rsult[0]['image'] ) && ! empty( $get_author_info_rsult[0]['image'] ) ) {
+
+					$this->generate_attachment( 'https://performancein.com/assets/' . $get_author_info_rsult[0]['image'], $new_user_id, 'author_avtar_image' );
+				}
+
+				if ( ! is_wp_error( $new_user_id ) ) {
+
+					$update_sql               = $wpdb->prepare( "UPDATE wp_users SET user_pass = %s WHERE ID =%d", $per_user->password, $new_user_id );
+					$results_password_updated = $wpdb->query( $update_sql );
+
+					WP_CLI::success( 'Inserted = ' . $new_user_id );
+					$success_count ++;
+				} else {
+
+					echo $new_user_id->get_error_message();
+
+					WP_CLI::success( 'Not Inserted = ' . $per_user->id );
+					$failed_count ++;
+				}
+
+			}
+
+			$time_elapsed_secs = microtime( true ) - $start;
+
+			WP_CLI::success( 'executed time = ' . $time_elapsed_secs );
+
+		}
+
+		public function pf_user_author_role_insert() {
+
+			global $wpdb;
+
+			$start = microtime( true );
+
+			$get_all_user  = 'SELECT auth_user.*, auth_user_groups.user_id, auth_user_groups.group_id, auth_group.name as role FROM `auth_user`
+INNER JOIN auth_user_groups ON auth_user.id=auth_user_groups.user_id
+INNER JOIN auth_group ON auth_user_groups.group_id=auth_group.id WHERE auth_group.name = "Authors"';
+			$user_lists    = $wpdb->get_results( $get_all_user );
+			$success_count = 0;
+			$failed_count  = 0;
+			foreach ( $user_lists as $per_user ) {
+				$user_role = $per_user->role;
+
+				if ( $per_user->role === 'Authors' ) {
+					$user_role = 'author';
+				} elseif ( $per_user->role === 'Recruiter' ) {
+					$user_role = 'customer';
+
+				} elseif ( $per_user->role === 'Sales' || $per_user->role === 'Content Team' ) {
+					$user_role = 'editor';
+				}
+				$userdata = array(
+					'user_pass'     => '',
+					//(string) The plain-text user password.
+					'user_login'    => $per_user->username,
+					//(string) The user's login username.
+					'user_nicename' => $per_user->username,
+					//(string) The URL-friendly user name.
+					'user_email'    => $per_user->email,
+					//(string) The user email address.
+					'display_name'  => $per_user->username,
+					//(string) The user's display name. Default is the user's username.
+					'nickname'      => $per_user->username,
+					//(string) The user's nickname. Default is the user's username.
+					'first_name'    => $per_user->first_name,
+					//(string) The user's first name. For new users, will be used to build the first part of the user's display name if $display_name is not specified.
+					'last_name'     => $per_user->last_name,
+					//(string) The user's last name. For new users, will be used to build the second part of the user's display name if $display_name is not specified.
+					'role'          => $user_role,
+					//(string) User's role.
+				);
+
+				$get_author_info                         = 'SELECT * FROM content_authorprofile WHERE user_id =' . $per_user->id;
+				$get_author_info_rsult                   = $wpdb->get_results( $get_author_info, ARRAY_A );
+				$recuruiterLogoQuery                     = 'SELECT * FROM monetisation_recruiterinformation WHERE account_id =' . $per_user->id;
+				$recuruiterLogoQueryResult               = $wpdb->get_results( $recuruiterLogoQuery, ARRAY_A );
+				$recuruiterTwitterQuery                  = 'SELECT * FROM monetisation_twitteraccount WHERE account_id =' . $per_user->id;
+				$recuruiterTwitterQueryResult            = $wpdb->get_results( $recuruiterTwitterQuery, ARRAY_A );
+				$recuruiterAccountPreferencesQuery       = 'SELECT * FROM monetisation_accountpreferences WHERE account_id =' . $per_user->id;
+				$recuruiterAccountPreferencesQueryResult = $wpdb->get_results( $recuruiterAccountPreferencesQuery, ARRAY_A );
+				$regionsIds                              = array();
+				$verticalsIds                            = array();
+				$topicsIds                              = array();
+				if ( ! empty( $recuruiterAccountPreferencesQueryResult ) && isset( $recuruiterAccountPreferencesQueryResult ) ) {
+					foreach ( $recuruiterAccountPreferencesQueryResult as $regionsArray ) {
+						$regionsID          = $regionsArray['id'];
+						$regionsQuery       = 'SELECT * FROM monetisation_accountpreferences_regions WHERE accountpreferences_id =' . $regionsID;
+						$regionsQueryResult = $wpdb->get_results( $regionsQuery, ARRAY_A );
+						foreach ( $regionsQueryResult as $regionsResult ) {
+							if ( '1' === $regionsResult['region_id'] ) {
+								$regionalForData = 'usa';
+							} elseif ( '2' === $regionsResult['region_id'] ) {
+								$regionalForData = 'europe';
+							} else {
+								$regionalForData = 'global';
+							}
+							$regionsIds[] = $regionalForData;
+
+						}
+					}
+					foreach ( $recuruiterAccountPreferencesQueryResult as $verticalsArray ) {
+						$verticalsID          = $verticalsArray['id'];
+						$verticalsQuery       = 'SELECT * FROM monetisation_accountpreferences_verticals WHERE accountpreferences_id =' . $verticalsID;
+						$verticalsQueryResult = $wpdb->get_results( $verticalsQuery, ARRAY_A );
+						foreach ( $verticalsQueryResult as $verticalsResult ) {
+							if ( '1' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'finance';
+							} elseif ( '2' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'travel';
+							} elseif ( '3' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'telecoms';
+							} elseif ( '4' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'retail';
+							} elseif ( '5' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'automotive';
+							} elseif ( '6' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'electrical';
+							} elseif ( '7' === $verticalsResult['vertical_id'] ) {
+								$verticalalForData = 'fashion';
+							}
+							$verticalsIds[] = $verticalalForData;
+
+						}
+					}
+					foreach ( $recuruiterAccountPreferencesQueryResult as $topicsArray ) {
+						$topicsID          = $topicsArray['id'];
+						$topicsQuery       = 'SELECT * FROM monetisation_accountpreferences_topics WHERE accountpreferences_id =' . $topicsID;
+						$topicsQueryResult = $wpdb->get_results( $topicsQuery, ARRAY_A );
+						foreach ( $topicsQueryResult as $topicsResult ) {
+							if ( '1' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'affiliate';
+							} elseif ( '2' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'social';
+							} elseif ( '3' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'search';
+							} elseif ( '4' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'email';
+							} elseif ( '5' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'display';
+							} elseif ( '6' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'lead generation';
+							} elseif ( '7' === $topicsResult['topic_id'] ) {
+								$topicalForData = 'mobile';
+							}
+							$topicsIds[] = $topicalForData;
+
+						}
+					}
+				}
+
+
+				$new_user_id = wp_insert_user( $userdata );
+				if ( ! empty( $regionsIds ) && isset( $regionsIds ) ) {
+					update_user_meta( $new_user_id, 'pi_regions_of_interest', $regionsIds );
+				}
+				if ( ! empty( $verticalsIds ) && isset( $verticalsIds ) ) {
+					update_user_meta( $new_user_id, 'pi_verticals', $verticalsIds );
+				}
+				if ( ! empty( $topicsIds ) && isset( $topicsIds ) ) {
+					update_user_meta( $new_user_id, 'pi_topics', $topicsIds );
+				}
+				if ( ! empty( $recuruiterAccountPreferencesQueryResult[0] ) ) {
+					update_user_meta( $new_user_id, 'pi_company_name', $recuruiterAccountPreferencesQueryResult[0]['company_name'] );
+					update_user_meta( $new_user_id, 'pi_demographic', $recuruiterAccountPreferencesQueryResult[0]['demographic'] );
+					update_user_meta( $new_user_id, 'pi_createsend_update_required', $recuruiterAccountPreferencesQueryResult[0]['createsend_update_required'] );
+					update_user_meta( $new_user_id, 'pi_job_title', $recuruiterAccountPreferencesQueryResult[0]['job_title'] );
+					update_user_meta( $new_user_id, 'pi_account_preferences_id', $recuruiterAccountPreferencesQueryResult[0]['id'] );
+				}
+				if ( ! empty( $recuruiterTwitterQueryResult[0] ) ) {
+					update_user_meta( $new_user_id, 'pi_twitter_token', $recuruiterTwitterQueryResult[0]['token'] );
+					update_user_meta( $new_user_id, 'pi_twitter_secret', $recuruiterTwitterQueryResult[0]['secret'] );
+					update_user_meta( $new_user_id, 'pi_twitter_username', $recuruiterTwitterQueryResult[0]['username'] );
+					update_user_meta( $new_user_id, 'pi_twitter_user_id', $recuruiterTwitterQueryResult[0]['user_id'] );
+					update_user_meta( $new_user_id, 'pi_twitter_id', $recuruiterTwitterQueryResult[0]['id'] );
+				}
+				if ( ! empty( $get_author_info_rsult[0]['twitter'] ) ) {
+					update_user_meta( $new_user_id, 'pi_twitter_url', $get_author_info_rsult[0]['twitter'] );
+				}
+				if ( ! empty( $get_author_info_rsult[0]['lin'] ) ) {
+					update_user_meta( $new_user_id, 'pi_linkedin_url', $get_author_info_rsult[0]['lin'] );
+				}
+				if ( ! empty( $recuruiterLogoQueryResult[0]['recruiter_name'] ) ) {
+					update_user_meta( $new_user_id, 'pi_recruiter_company_name', $recuruiterLogoQueryResult[0]['recruiter_name'] );
+				}
+
+				update_user_meta( $new_user_id, 'django_user_id', $per_user->id );
+				update_user_meta( $new_user_id, 'is_confirm', 1 );
+
+				if ( isset( $recuruiterLogoQueryResult[0]['image'] ) && ! empty( $recuruiterLogoQueryResult[0]['image'] ) ) {
+
+					$this->generate_attachment( 'https://performancein.com/assets/' . $recuruiterLogoQueryResult[0]['image'], $new_user_id, 'pi_recruiter_logo' );
+				}
+				update_user_meta( $new_user_id, 'pi_staff_status', $per_user->is_staff );
+				update_user_meta( $new_user_id, 'pi_super_user_status', $per_user->is_superuser );
+				update_user_meta( $new_user_id, 'pi_is_active', $per_user->is_active );
+				update_user_meta( $new_user_id, 'pi_group_id', $per_user->group_id );
+				if ( isset( $get_author_info_rsult[0]['image'] ) && ! empty( $get_author_info_rsult[0]['image'] ) ) {
+
+					$this->generate_attachment( 'https://performancein.com/assets/' . $get_author_info_rsult[0]['image'], $new_user_id, 'author_avtar_image' );
+				}
+
+				if ( ! is_wp_error( $new_user_id ) ) {
+
+					$update_sql               = $wpdb->prepare( "UPDATE wp_users SET user_pass = %s WHERE ID =%d", $per_user->password, $new_user_id );
+					$results_password_updated = $wpdb->query( $update_sql );
+
+					WP_CLI::success( 'Inserted = ' . $new_user_id );
+					$success_count ++;
+				} else {
+
+					echo $new_user_id->get_error_message();
+
+					WP_CLI::success( 'Not Inserted = ' . $per_user->id );
+					$failed_count ++;
+				}
+
+			}
+
+			$time_elapsed_secs = microtime( true ) - $start;
+
+			WP_CLI::success( 'executed time = ' . $time_elapsed_secs );
+
+		}
+
+
+		public function pf_account_user_insert() {
+
+			global $wpdb;
+
+			//$get_account_user   = 'SELECT * FROM `monetisation_account`';
+
+			$get_account_user   = 'SELECT `monetisation_account`.`id`,`monetisation_account`.`password`,`monetisation_account`.`last_login`,`monetisation_account`.`email`,`monetisation_account`.`first_name`,`monetisation_account`.`last_name`,`monetisation_account`.`is_confirmed`,`monetisation_account`.`analytics_uuid`,`monetisation_account`.`has_logged_in`,`monetisation_account`.`last_date_viewed_jobs`,`monetisation_account`.`stripe_customer_id`,`monetisation_accountpreferences`.`company_name`,`monetisation_accountpreferences`.`demographic`,`monetisation_accountpreferences`.`id` as `accountpreferences_id`, `monetisation_accountpreferences`.`job_title` FROM `monetisation_account` LEFT JOIN `monetisation_accountpreferences`
+ON `monetisation_account`.`id` = `monetisation_accountpreferences`.`account_id`';
+
+			$account_user_lists = $wpdb->get_results( $get_account_user );
+
+
+			$success_count = 0;
+			$failed_count  = 0;
+
+			//echo "<pre>";print_r($account_user_lists); echo "</pre>";exit;
+
+			foreach ( $account_user_lists as $per_user ) {
+
+				if ( $success_count === 10 ) {
+					break;
+				}
+
+				$userdata = array(
+					'user_pass'     => '',
+					//(string) The plain-text user password.
+					'user_login'    => $per_user->email,
+					//(string) The user's login username.
+					'user_nicename' => $per_user->email,
+					//(string) The URL-friendly user name.
+					'user_email'    => $per_user->email,
+					//(string) The user email address.
+					'display_name'  => $per_user->email,
+					//(string) The user's display name. Default is the user's username.
+					'nickname'      => $per_user->email,
+					//(string) The user's nickname. Default is the user's username.
+					'first_name'    => $per_user->first_name,
+					//(string) The user's first name. For new users, will be used to build the first part of the user's display name if $display_name is not specified.
+					'last_name'     => $per_user->last_name,
+					//(string) The user's last name. For new users, will be used to build the second part of the user's display name if $display_name is not specified.
+					'role'          => 'customer',
+					//(string) User's role.
+				);
+				$userID               = $per_user->id;
+
+				$new_user_id = wp_insert_user( $userdata );
+
+				$getAllOrdersUserWise = 'SELECT * FROM `monetisation_order` LEFT JOIN monetisation_jobproductorderitem ON monetisation_order.uuid = monetisation_jobproductorderitem.order_id WHERE account_id=' . $userID;
+				$order_lists          = $wpdb->get_results( $getAllOrdersUserWise );
+				$pi_product_temp_array = array();
+				if ( ! empty( $order_lists ) ) {
+					foreach ( $order_lists as $pi_djongo_pid ) {
+
+						$product_id = isset( $pi_djongo_pid->job_product_id ) ? $pi_djongo_pid->job_product_id : '';
+						if ( ! isset( $pi_product_temp_array[ $product_id ] ) && ! empty( $product_id ) ) {
+							$pi_product_temp_array[ $product_id ] = 1;
+						} elseif ( isset( $pi_product_temp_array[ $product_id ] ) && ! empty( $product_id ) ) {
+							$pi_product_temp_array[ $product_id ] ++;
+						}
+
+
+					}
+				}
+				/**
+				 * posted job
+				 */
+				$userwiseJobsProductID   = 'SELECT monetisation_job.product_id FROM monetisation_job WHERE account_id =' . $userID;
+				$userwiseJobsProductists = $wpdb->get_results( $userwiseJobsProductID );
+				$pi_product_temp_arr     = array();
+				if ( ! empty( $userwiseJobsProductists ) ) {
+					$totalJobPost = count( $userwiseJobsProductists );
+					foreach ( $userwiseJobsProductists as $pi_djongo_pid ) {
+						$product_id = isset( $pi_djongo_pid->product_id ) ? $pi_djongo_pid->product_id : '';
+						if ( ! isset( $pi_product_temp_arr[ $product_id ] ) && ! empty( $product_id ) ) {
+							$pi_product_temp_arr[ $product_id ] = 1;
+						} elseif ( isset( $pi_product_temp_arr[ $product_id ] ) && ! empty( $product_id ) ) {
+							$pi_product_temp_arr[ $product_id ] ++;
+						}
+					}
+				}
+				foreach ($pi_product_temp_arr as $key => $values ) {
+					$product = $this->pi_get_product_id_by_djongo_pid($key);
+					$pendingCredit[$product] = absint( $pi_product_temp_array[$key] - $pi_product_temp_arr[$key] );
+				}
+				update_user_meta($new_user_id,'pi_credit_package',wp_json_encode($pendingCredit));
+				update_user_meta( $new_user_id, 'django_user_id', $per_user->id );
+				/*update_user_meta( $new_user_id, 'pi_twitter_url', $per_user->id );
+				update_user_meta( $new_user_id, 'pi_linkedin_url', $per_user->id );*/ // No need to set for the account(recruiter) user
+				update_user_meta( $new_user_id, 'is_confirm', $per_user->is_confirmed );
+				update_user_meta( $new_user_id, 'pi_company_name', $per_user->company_name );
+				update_user_meta( $new_user_id, 'pi_demographic', $per_user->demographic );
+				update_user_meta( $new_user_id, 'pi_analytics_uuid', $per_user->analytics_uuid );
+				update_user_meta( $new_user_id, 'has_logged_in', $per_user->has_logged_in );
+				update_user_meta( $new_user_id, 'stripe_customer_id', $per_user->stripe_customer_id );
+				update_user_meta( $new_user_id, 'last_date_viewed_jobs', $per_user->last_date_viewed_jobs );
+				update_user_meta( $new_user_id, 'pi_accountpreferences_id', $per_user->accountpreferences_id );
+				update_user_meta( $new_user_id, 'pi_job_title', $per_user->job_title );
+
+				$recuruiterLogoQuery                     = 'SELECT * FROM monetisation_recruiterinformation WHERE account_id =' . $per_user->id;
+				$recuruiterLogoQueryResult               = $wpdb->get_results( $recuruiterLogoQuery, ARRAY_A );
+
+				if ( ! empty( $recuruiterLogoQueryResult[0]['recruiter_name'] ) ) {
+					update_user_meta( $new_user_id, 'pi_recruiter_company_name', $recuruiterLogoQueryResult[0]['recruiter_name'] );
+				}
+				if ( isset( $recuruiterLogoQueryResult[0]['image'] ) && ! empty( $recuruiterLogoQueryResult[0]['image'] ) ) {
+
+					$this->generate_attachment( 'https://performancein.com/assets/' . $recuruiterLogoQueryResult[0]['image'], $new_user_id, 'pi_recruiter_logo' );
+				}
+
+				if( isset( $per_user->accountpreferences_id ) && !empty( $per_user->accountpreferences_id ) ) {
+					$regionsIds = array();
+					$verticalsIds = array();
+
+					$regionsQuery = 'SELECT * FROM monetisation_accountpreferences_regions WHERE accountpreferences_id =' . $per_user->accountpreferences_id;
+					$regionsQueryResult = $wpdb->get_results( $regionsQuery, ARRAY_A );
+					foreach ( $regionsQueryResult as $regionsResult ) {
+						if ( '1' === $regionsResult['region_id'] ) {
+							$regionalForData = 'usa';
+						} elseif ( '2' === $regionsResult['region_id'] ) {
+							$regionalForData = 'europe';
+						} else {
+							$regionalForData = 'global';
+						}
+						$regionsIds[] = $regionalForData;
+					}
+					if ( ! empty( $regionsIds ) && isset( $regionsIds ) ) {
+						update_user_meta($new_user_id, 'pi_regions_of_interest', $regionsIds);
+					}
+
+					$verticalsQuery       = 'SELECT * FROM monetisation_accountpreferences_verticals WHERE accountpreferences_id =' . $per_user->accountpreferences_id;
+					$verticalsQueryResult = $wpdb->get_results( $verticalsQuery, ARRAY_A );
+					foreach ( $verticalsQueryResult as $verticalsResult ) {
+						if ( '1' === $verticalsResult['vertical_id'] ) {
+							$verticalalForData = 'finance';
+						} elseif ( '2' === $verticalsResult['vertical_id'] ) {
+							$verticalalForData = 'travel';
+						} elseif ( '3' === $verticalsResult['vertical_id'] ) {
+							$verticalalForData = 'telecoms';
+						} elseif ( '4' === $verticalsResult['vertical_id'] ) {
+							$verticalalForData = 'retail';
+						} elseif ( '5' === $verticalsResult['vertical_id'] ) {
+							$verticalalForData = 'automotive';
+						} elseif ( '6' === $verticalsResult['vertical_id'] ) {
+							$verticalalForData = 'electrical';
+						} elseif ( '7' === $verticalsResult['vertical_id'] ) {
+							$verticalalForData = 'fashion';
+						}
+						$verticalsIds[] = $verticalalForData;
+					}
+					if ( ! empty( $verticalsIds ) && isset( $verticalsIds ) ) {
+						update_user_meta($new_user_id, 'pi_verticals', $verticalsIds);
+					}
+
+					$topicsQuery       = 'SELECT * FROM monetisation_accountpreferences_topics WHERE accountpreferences_id =' . $per_user->accountpreferences_id;
+					$topicsQueryResult = $wpdb->get_results( $topicsQuery, ARRAY_A );
+					foreach ( $topicsQueryResult as $topicsResult ) {
+						if ( '1' === $topicsResult['topic_id'] ) {
+							$topicalForData = 'affiliate';
+						} elseif ( '2' === $topicsResult['topic_id'] ) {
+							$topicalForData = 'social';
+						} elseif ( '3' === $topicsResult['topic_id'] ) {
+							$topicalForData = 'search';
+						} elseif ( '4' === $topicsResult['topic_id'] ) {
+							$topicalForData = 'email';
+						} elseif ( '5' === $topicsResult['topic_id'] ) {
+							$topicalForData = 'display';
+						} elseif ( '6' === $topicsResult['topic_id'] ) {
+							$topicalForData = 'lead generation';
+						} elseif ( '7' === $topicsResult['topic_id'] ) {
+							$topicalForData = 'mobile';
+						}
+						$topicsIds[] = $topicalForData;
+					}
+					if ( ! empty( $topicsIds ) && isset( $topicsIds ) ) {
+						update_user_meta( $new_user_id, 'pi_topics', $topicsIds );
+					}
+				}
+
+
+
+				if ( ! is_wp_error( $new_user_id ) ) {
+
+					$update_sql               = $wpdb->prepare( "UPDATE wp_users SET user_pass = %s WHERE ID =%d", $per_user->password, $new_user_id );
+					$results_password_updated = $wpdb->query( $update_sql );
+
+					WP_CLI::success( 'Inserted = ' . $new_user_id );
+					$success_count ++;
+				} else {
+
+					echo $new_user_id->get_error_message();
+
+					WP_CLI::success( 'Not Inserted = ' . $per_user->id );
+					$failed_count ++;
+				}
+
+			}
+
+			//WP_CLI::success( 'result = '. $str );
+
+		}
+
+		public function generate_attachment( $image_url, $post_id, $custom_field_key ) {
+			$upload_dir = wp_upload_dir();
+			$image_data = file_get_contents( $image_url );
+			$filename   = basename( $image_url );
+			if ( wp_mkdir_p( $upload_dir['path'] ) ) {
+				$file = $upload_dir['path'] . '/' . $filename;
+			} else {
+				$file = $upload_dir['basedir'] . '/' . $filename;
+			}
+			file_put_contents( $file, $image_data );
+
+			$wp_filetype = wp_check_filetype( $filename, null );
+			$attachment  = array(
+				'post_mime_type' => $wp_filetype['type'],
+				'post_title'     => sanitize_file_name( $filename ),
+				'post_content'   => '',
+				'post_status'    => 'inherit'
+			);
+			$attach_id   = wp_insert_attachment( $attachment, $file, $post_id );
+			require_once( ABSPATH . 'wp-admin/includes/image.php' );
+			$attach_data = wp_generate_attachment_metadata( $attach_id, $file );
+			$res1        = wp_update_attachment_metadata( $attach_id, $attach_data );
+			$res2        = set_post_thumbnail( $post_id, $attach_id );
+			update_user_meta( $post_id, $custom_field_key, $attach_id );
+		}
+
+		function pf_import_article() {
+			global $wpdb;
+
+			$get_all_article      = 'SELECT * FROM `content_article` LIMIT 0,10';
+			$content_article_list = $wpdb->get_results( $get_all_article );
+
+			$success_count = 0;
+			$failed_count  = 0;
+
+			foreach ( $content_article_list as $article ) {
+
+
+				if ( $success_count === 1 ) {
+					break;
+				}
+
+				$author_id = $article->author_id;
+
+				$user = get_users(
+					array(
+						'meta_key'    => 'django_user_id',
+						'meta_value'  => $author_id,
+						'number'      => 1,
+						'count_total' => false
+					) );
+
+				$user_data = $user[0]->data;
+
+				$defaults = array(
+					'post_author'  => $user_data->ID,
+					'post_content' => $article->content,
+					'post_title'   => $article->title,
+					'post_excerpt' => $article->summary,
+					'post_status'  => 'draft',
+					'post_type'    => 'post',
+				);
+
+				wp_insert_post( $defaults );
+
+				$success_count ++;
+
+
+				if ( ! empty( $new_user_id ) ) {
+					$success_count ++;
+				} else {
+					$failed_count ++;
+				}
+			}
+
+
+		}
+
+		public function pf_delete_user() {
+			global $wpdb;
+			$args = array(
+				'role'    => array('customer'),
+				'fields' => 'ids'
+			);
+			$user_list = get_users( $args );
+			if( !empty( $user_list ) ) {
+				foreach ( $user_list as $user ) {
+					if( wp_delete_user( $user ) ) {
+						WP_CLI::success( 'deleted id = ' . $user );
+					} else {
+						WP_CLI::success( 'USer not deleted. id = ' . $user);
+					}
+				}
+
+
+			}
+
+
+		}
+		protected function pi_get_product_id_by_djongo_pid( $pi_djongo_pid ) {
+			$params = array(
+				'post_type' => 'product',
+				'meta_query' => array(
+					array('key' => 'pi_product_uuid',
+					      'value' => $pi_djongo_pid,
+					      'compare' => '=',
+					)
+				),
+				'fields' => 'ids'
+			);
+			$wc_query = new WP_Query($params);
+			$postsIds = $wc_query->posts;
+			wp_reset_postdata();
+			wp_reset_query();
+			return isset($postsIds[0]) ? $postsIds[0] : false;
+		}
+
+	}
+
+	WP_CLI::add_command( 'performance', 'ExamplePluginWPCLI' );
+
+}
+
+
